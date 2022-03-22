@@ -1,6 +1,5 @@
 const identifier = "dcl-cube-0.0.2"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
-
 import { getUserData } from "@decentraland/Identity";
 
 import {
