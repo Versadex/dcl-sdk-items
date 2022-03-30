@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.2"; // #VX!-version
+const identifier = "dcl-billboard-0.0.3"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -42,12 +42,14 @@ export class VersadexImpression {
 		billboardID: string,
 		campaignID: string,
 		billboardTransform: Transform,
-		client_identifier: string
+		client_identifier: string,
+		impression_identifier: string
 	) {
 		(this.triggered = false), (this.billboardID = billboardID);
 		this.campaignID = campaignID;
 		this.billboardTransform = billboardTransform;
 		this.client_identifier = client_identifier;
+		this.impressionIdentifier = impression_identifier
 	}
 
 	// proximity measurement
@@ -65,17 +67,6 @@ export class VersadexImpression {
 		return new Vector3(a, c, b);
 	}
 
-	poorManUuid = () => {
-		return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-			/[xy]/g,
-			function (c) {
-				var r = (Math.random() * 16) | 0,
-					v = c == "x" ? r : (r & 0x3) | 0x8;
-				return v.toString(16);
-			}
-		);
-	};
-
 	// record view function
 	recordView(dist: Number, endTimer: number, impressionIdentifier: string) {
 		try {
@@ -87,11 +78,11 @@ export class VersadexImpression {
 					distance: dist.toFixed(1),
 					duration: endTimer.toFixed(),
 					client_identifier: this.client_identifier,
-					impression_identifier: impressionIdentifier,
+					impression: impressionIdentifier,
 				};
 
 				// post to record impression
-				fetch(baseURL + "/c/b/" + this.billboardID + "/m/", {
+				fetch(baseURL + "/c/u/" + this.billboardID + "/m/", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -130,7 +121,6 @@ export class VersadexImpression {
 			if (dist < 300 && Math.abs(angle) < 0.81) {
 				if (!this.startTimer) {
 					this.startTimer = Date.now();
-					this.impressionIdentifier = this.poorManUuid();
 				}
 				this.userDistanceFlag = true;
 			} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
@@ -154,7 +144,7 @@ export type Props = {
 };
 
 export default class VersadexBillboard implements IScript<Props> {
-	init() {}
+	init() { }
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
@@ -188,7 +178,8 @@ export default class VersadexBillboard implements IScript<Props> {
 		versadex_link.addComponent(
 			new OnPointerDown(() => {
 				openExternalURL("https://versadex.xyz");
-			})
+			},
+				{ hoverText: "Advertise or monetise with Versadex" })
 		);
 
 		// create the paper which displays the creative
@@ -214,7 +205,8 @@ export default class VersadexBillboard implements IScript<Props> {
 				paper.addComponent(
 					new OnPointerDown(() => {
 						openExternalURL(json.landing_url);
-					})
+					},
+						{ hoverText: "Visit website" })
 				);
 				// set campaign ID
 				const billboardTransform = host.getComponent(Transform);
@@ -223,7 +215,9 @@ export default class VersadexBillboard implements IScript<Props> {
 					props.id,
 					json.id,
 					billboardTransform,
-					identifier
+					identifier,
+					json.impression_id
+
 				);
 				engine.addSystem(impression);
 			});
