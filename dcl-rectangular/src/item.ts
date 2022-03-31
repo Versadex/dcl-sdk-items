@@ -1,4 +1,4 @@
-const identifier = "dcl-rectangular-poster-0.0.1"; // #VX!-version
+const identifier = "dcl-rectangular-billboard-0.0.2"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -137,33 +137,32 @@ export class VersadexImpression {
 		}
 	}
 }
-
 export type Props = {
 	id: string;
 };
 
-export default class VersadexPoster implements IScript<Props> {
-	init() {}
+export default class VersadexBillboard implements IScript<Props> {
+	init() { }
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
 		backboard.setParent(host);
 
-		// create material for the back of the item
+		// create material for the back of the billboard
 		const backMaterial = new Material();
 		backMaterial.albedoColor = Color3.Gray();
 		backMaterial.metallic = 0.9;
 		backMaterial.roughness = 0.1;
 
-		backboard.addComponent(new GLTFShape("src/dcl-rectangular/models/rectangular_poster.glb")); // #VX!-absolute_path
+		backboard.addComponent(new GLTFShape("src/dcl-rectangular/models/rectangular_billboard.glb")); // #VX!-absolute_path
 
 		// create the paper which always links to versadex
 		const versadex_link = new Entity();
 		versadex_link.setParent(backboard);
 		versadex_link.addComponent(
 			new Transform({
-				position: new Vector3(-0.86, -0.475, 0.0501),
-				scale: new Vector3(0.3, 0.05, 1),
+				position: new Vector3(-0.86, -0.5, 0.0501),
+				scale: new Vector3(0.25, 0.1, 1),
 				rotation: Quaternion.Euler(0, 180, 180),
 			})
 		);
@@ -172,12 +171,10 @@ export default class VersadexPoster implements IScript<Props> {
 		seeThrough.albedoColor = new Color4(0, 0, 0, 0);
 		versadex_link.addComponent(seeThrough);
 		versadex_link.addComponent(
-			new OnPointerDown(
-				() => {
-					openExternalURL("https://versadex.xyz");
-				},
-				{ hoverText: "Advertise or monetise with Versadex" }
-			)
+			new OnPointerDown(() => {
+				openExternalURL("https://versadex.xyz");
+			},
+				{ hoverText: "Advertise or monetise with Versadex" })
 		);
 
 		// create the paper which displays the creative
@@ -185,7 +182,7 @@ export default class VersadexPoster implements IScript<Props> {
 		paper.setParent(backboard);
 		paper.addComponent(
 			new Transform({
-				position: new Vector3(0, 0, 0.02),
+				position: new Vector3(0, 0, 0.052),
 				scale: new Vector3(1.9, 0.9, 1),
 				rotation: Quaternion.Euler(0, 180, 180),
 			})
@@ -201,12 +198,10 @@ export default class VersadexPoster implements IScript<Props> {
 				myMaterial.albedoTexture = myTexture;
 				paper.addComponent(myMaterial);
 				paper.addComponent(
-					new OnPointerDown(
-						() => {
-							openExternalURL(json.landing_url);
-						},
-						{ hoverText: "Visit website" }
-					)
+					new OnPointerDown(() => {
+						openExternalURL(json.landing_url);
+					},
+						{ hoverText: "Visit website" })
 				);
 				// set campaign ID
 				const billboardTransform = host.getComponent(Transform);

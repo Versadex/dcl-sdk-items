@@ -1,4 +1,4 @@
-const identifier = "dcl-cube-0.0.3"; // #VX!-version
+const identifier = "dcl-cube-0.0.2"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -137,7 +137,6 @@ export class VersadexImpression {
 		}
 	}
 }
-
 export type Props = {
 	id: string;
 	auto_rotate: Boolean;
@@ -283,8 +282,7 @@ export default class VersadexBillboard implements IScript<Props> {
 					props.id,
 					json.id,
 					billboardTransform,
-					identifier,
-					json.impression_id
+					identifier
 				);
 				engine.addSystem(impression);
 			});
