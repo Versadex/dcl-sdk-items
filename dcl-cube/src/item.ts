@@ -11,17 +11,17 @@ export class VersadexImpression {
 	public userData = executeTask(async () => {
 		// user information & campaign holder
 		const data = await getUserData();
-		return data;
+		return data!;
 	});
 	public currentRealm = executeTask(async () => {
 		// user information & campaign holder
 		const data = await getCurrentRealm();
-		return data;
+		return data!;
 	});
 	public explorerConfiguration = executeTask(async () => {
 		// user information & campaign holder
 		const data = await getExplorerConfiguration();
-		return data;
+		return data!;
 	});
 	public physicsCast = PhysicsCast.instance;
 	public camera = Camera.instance;
@@ -35,8 +35,8 @@ export class VersadexImpression {
 
 	private userDistanceFlag: Boolean = false;
 
-	private startTimer: number;
-	private endTimer: number;
+	private startTimer!: number;
+	private endTimer!: number;
 
 	constructor(
 		billboardID: string,
@@ -49,7 +49,7 @@ export class VersadexImpression {
 		this.campaignID = campaignID;
 		this.billboardTransform = billboardTransform;
 		this.client_identifier = client_identifier;
-		this.impressionIdentifier = impression_identifier
+		this.impressionIdentifier = impression_identifier;
 	}
 
 	// proximity measurement
@@ -127,7 +127,7 @@ export class VersadexImpression {
 				this.endTimer = Date.now() - this.startTimer;
 				this.userDistanceFlag = false;
 				this.triggered = true;
-				this.startTimer = null;
+				this.startTimer = 0;
 				this.recordView(dist, this.endTimer, this.impressionIdentifier);
 			} else {
 				null;
@@ -137,6 +137,7 @@ export class VersadexImpression {
 		}
 	}
 }
+
 export type Props = {
 	id: string;
 	auto_rotate: Boolean;
