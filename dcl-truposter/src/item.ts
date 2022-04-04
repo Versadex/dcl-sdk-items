@@ -1,4 +1,4 @@
-const identifier = "dcl-truposter-0.0.1"; // #VX!-version
+const identifier = "dcl-truposter-0.0.2"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -143,7 +143,7 @@ export type Props = {
 };
 
 export default class VersadexPoster implements IScript<Props> {
-	init() { }
+	init() {}
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
@@ -195,7 +195,16 @@ export default class VersadexPoster implements IScript<Props> {
 
 		try {
 			executeTask(async () => {
-				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/?creative_type=img");
+				let response = await fetch(
+					baseURL +
+						"/c/u/" +
+						props.id +
+						"/gc/?x=" +
+						1600 +
+						"&y=" +
+						1200 +
+						"&creative_type=img"
+				);
 				let json = await response.json();
 				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
