@@ -142,7 +142,7 @@ export type Props = {
 	id: string;
 };
 
-export default class VersadexBillboard implements IScript<Props> {
+export default class VersadexSmartItem implements IScript<Props> {
 	init() {}
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
@@ -155,7 +155,7 @@ export default class VersadexBillboard implements IScript<Props> {
 		backMaterial.metallic = 0.9;
 		backMaterial.roughness = 0.1;
 
-		backboard.addComponent(new GLTFShape("src/dcl-sciartlabbillboard/models/sciart-billboard.glb")); // #VX!-absolute_path
+		backboard.addComponent(new GLTFShape("src/dcl-sciartlabbillboard/models/billboard.glb")); // #VX!-absolute_path
 
 		// create the paper which always links to versadex
 		const versadex_link = new Entity();

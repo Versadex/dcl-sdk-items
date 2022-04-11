@@ -1,5 +1,6 @@
-const identifier = "dcl-cube-0.0.3"; // #VX!-version
+const identifier = "dcl-cube-0.0.4"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
+
 import { getUserData } from "@decentraland/Identity";
 
 import {
@@ -161,10 +162,12 @@ export class VersadexLink extends Entity {
 		seeThrough.albedoColor = new Color4(0, 0, 0, 0);
 		this.addComponent(seeThrough);
 		this.addComponent(
-			new OnPointerDown(() => {
-				openExternalURL("https://versadex.xyz");
-			},
-				{ hoverText: "Advertise or monetise with Versadex" })
+			new OnPointerDown(
+				() => {
+					openExternalURL("https://versadex.xyz");
+				},
+				{ hoverText: "Advertise or monetise with Versadex" }
+			)
 		);
 	}
 }
@@ -199,8 +202,8 @@ export class RotateSystem implements ISystem {
 	}
 }
 
-export default class VersadexBillboard implements IScript<Props> {
-	init() { }
+export default class VersadexSmartItem implements IScript<Props> {
+	init() {}
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
@@ -264,17 +267,19 @@ export default class VersadexBillboard implements IScript<Props> {
 
 		try {
 			executeTask(async () => {
-				let response = await fetch(baseURL + "/c/b/" + props.id + "/gc/");
+				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/");
 				let json = await response.json();
-				const myTexture = new Texture(json.image_url, { wrap: 1 });
+				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
 				for (let item of [paper, paper2, paper3, paper4]) {
 					item.addComponent(myMaterial);
 					item.addComponent(
-						new OnPointerDown(() => {
-							openExternalURL(json.landing_url);
-						},
-							{ hoverText: "Visit website" })
+						new OnPointerDown(
+							() => {
+								openExternalURL(json.landing_url);
+							},
+							{ hoverText: "Visit website" }
+						)
 					);
 				}
 				// set campaign ID

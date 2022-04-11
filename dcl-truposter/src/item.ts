@@ -142,7 +142,7 @@ export type Props = {
 	id: string;
 };
 
-export default class VersadexPoster implements IScript<Props> {
+export default class VersadexSmartItem implements IScript<Props> {
 	init() {}
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
