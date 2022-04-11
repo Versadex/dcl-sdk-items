@@ -200,9 +200,9 @@ export default class VersadexSmartItem implements IScript<Props> {
 						"/c/u/" +
 						props.id +
 						"/gc/?x=" +
-						1600 +
+						2000 +
 						"&y=" +
-						1200 +
+						1000 +
 						"&creative_type=img"
 				);
 				let json = await response.json();
