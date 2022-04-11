@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.3"; // #VX!-version
+const identifier = "dcl-billboard-0.0.2"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -140,10 +140,9 @@ export class VersadexImpression {
 
 export type Props = {
 	id: string;
-	followViewer: Boolean;
 };
 
-export default class VersadexBillboard implements IScript<Props> {
+export default class VersadexSmartItem implements IScript<Props> {
 	init() { }
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
@@ -157,16 +156,13 @@ export default class VersadexBillboard implements IScript<Props> {
 		backMaterial.roughness = 0.1;
 
 		backboard.addComponent(new GLTFShape("src/dcl-billboard/models/billboard.glb")); // #VX!-absolute_path
-		props.followViewer
-			? host.addComponent(new Billboard(false, true, true))
-			: {};
 
 		// create the paper which always links to versadex
 		const versadex_link = new Entity();
 		versadex_link.setParent(backboard);
 		versadex_link.addComponent(
 			new Transform({
-				position: new Vector3(-0.375, -0.5, 0.0501),
+				position: new Vector3(-0.86, -0.5, 0.0501),
 				scale: new Vector3(0.25, 0.1, 1),
 				rotation: Quaternion.Euler(0, 180, 180),
 			})
@@ -185,23 +181,29 @@ export default class VersadexBillboard implements IScript<Props> {
 		// create the paper which displays the creative
 		const paper = new Entity();
 		paper.setParent(backboard);
+
+		// need to link scale to reflect the size of the object in the world, not necessarily the actual dimensions
 		paper.addComponent(
 			new Transform({
 				position: new Vector3(0, 0, 0.052),
-				scale: new Vector3(0.9, 0.9, 1),
+				scale: new Vector3(1.5, 0.9, 1),
 				rotation: Quaternion.Euler(0, 180, 180),
 			})
 		);
 		paper.addComponent(new PlaneShape());
 		const myMaterial = new Material();
 
+
 		try {
 			executeTask(async () => {
-				let response = await fetch(baseURL + "/c/b/" + props.id + "/gc/");
+				// let scale = host.getComponent(Transform).scale // LOOK INTO THE IMPACT BOXES FOR THE TRUE MODEL SIZE ETC
+				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/?x=" + 2560 + "&y=" + 1600 + "&creative_type=img");
 				let json = await response.json();
-				const myTexture = new Texture(json.image_url, { wrap: 1 });
+				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
 				paper.addComponent(myMaterial);
+				
+				// need to move the impression Identifier into the main item.ts file so that we end up attributing the impression to the click
 				paper.addComponent(
 					new OnPointerDown(() => {
 						openExternalURL(json.landing_url);
@@ -210,14 +212,12 @@ export default class VersadexBillboard implements IScript<Props> {
 				);
 				// set campaign ID
 				const billboardTransform = host.getComponent(Transform);
-				log(identifier);
 				const impression = new VersadexImpression(
 					props.id,
 					json.id,
 					billboardTransform,
 					identifier,
 					json.impression_id
-
 				);
 				engine.addSystem(impression);
 			});
@@ -226,5 +226,3 @@ export default class VersadexBillboard implements IScript<Props> {
 		}
 	}
 }
-
-//@ed@versadex.xyz

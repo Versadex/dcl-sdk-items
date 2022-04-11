@@ -1,4 +1,4 @@
-const identifier = "dcl-truposter-0.0.2"; // #VX!-version
+const identifier = "dcl-poster-0.0.2"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -155,7 +155,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 		backMaterial.metallic = 0.9;
 		backMaterial.roughness = 0.1;
 
-		backboard.addComponent(new GLTFShape("src/dcl-truposter/models/rectangular_poster.glb")); // #VX!-absolute_path
+		backboard.addComponent(new GLTFShape("src/dcl-poster/models/rectangular_poster.glb")); // #VX!-absolute_path
 
 		// create the paper which always links to versadex
 		const versadex_link = new Entity();
