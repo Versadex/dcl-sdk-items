@@ -197,7 +197,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 		try {
 			executeTask(async () => {
 				// let scale = host.getComponent(Transform).scale // LOOK INTO THE IMPACT BOXES FOR THE TRUE MODEL SIZE ETC
-				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/?x=" + 2560 + "&y=" + 1600 + "&creative_type=img");
+				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/?x=" + 1000 + "&y=" + 1000 + "&creative_type=img");
 				let json = await response.json();
 				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
