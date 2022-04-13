@@ -1,6 +1,5 @@
-const identifier = "dcl-cube-0.0.4"; // #VX!-version
+const identifier = "dcl-cube-0.0.5"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
-
 import { getUserData } from "@decentraland/Identity";
 
 import {
@@ -26,7 +25,6 @@ export class VersadexImpression {
 	});
 	public physicsCast = PhysicsCast.instance;
 	public camera = Camera.instance;
-	private triggered: Boolean;
 	private billboardID: string;
 	private campaignID: string;
 	private client_identifier: string;
@@ -35,6 +33,8 @@ export class VersadexImpression {
 	private impressionIdentifier: string;
 
 	private userDistanceFlag: Boolean = false;
+	private raycastNotLookingAtSI: Boolean = true;
+	private raycastEntityValidation: Boolean = false;
 
 	private startTimer!: number;
 	private endTimer!: number;
@@ -46,7 +46,7 @@ export class VersadexImpression {
 		client_identifier: string,
 		impression_identifier: string
 	) {
-		(this.triggered = false), (this.billboardID = billboardID);
+		this.billboardID = billboardID;
 		this.campaignID = campaignID;
 		this.billboardTransform = billboardTransform;
 		this.client_identifier = client_identifier;
@@ -105,7 +105,7 @@ export class VersadexImpression {
 		let transform = this.billboardTransform;
 		let dist = this.distance(transform.position, this.camera.position);
 		let dir = this.direction(transform.position, this.camera.position);
-		let camera_readonly = this.physicsCast.getRayFromCamera(1).direction;
+		let camera_readonly = this.physicsCast.getRayFromCamera(100).direction;
 		let camera_direction = new Vector3(
 			camera_readonly.x,
 			camera_readonly.y,
@@ -117,25 +117,38 @@ export class VersadexImpression {
 			Vector3.Up()
 		);
 
-		if (!this.triggered) {
-			// if within ~16m or so then record as impressioned/viewed
-			if (dist < 300 && Math.abs(angle) < 0.81) {
-				if (!this.startTimer) {
-					this.startTimer = Date.now();
-				}
-				this.userDistanceFlag = true;
-			} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
-				this.endTimer = Date.now() - this.startTimer;
-				this.userDistanceFlag = false;
-				this.triggered = true;
-				this.startTimer = 0;
-				this.recordView(dist, this.endTimer, this.impressionIdentifier);
-			} else {
-				null;
+		const rayFromCamera = this.physicsCast.getRayFromCamera(50);
+
+		this.physicsCast.hitFirst(rayFromCamera, (raycastHitEntity) => {
+			if (
+				raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+				this.raycastNotLookingAtSI
+			) {
+				this.raycastNotLookingAtSI = false;
+				this.raycastEntityValidation = true;
 			}
-		} else if (this.triggered && this.userDistanceFlag == false) {
-			this.triggered = false;
-		}
+			if (!this.raycastNotLookingAtSI) {
+				if (
+					dist < 300 &&
+					Math.abs(angle) < 0.81 &&
+					this.raycastEntityValidation
+				) {
+					if (!this.startTimer) {
+						this.startTimer = Date.now();
+					}
+					this.userDistanceFlag = true;
+				} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
+					this.endTimer = Date.now() - this.startTimer;
+					this.userDistanceFlag = false;
+					this.raycastNotLookingAtSI = true;
+					this.raycastEntityValidation = false;
+					this.startTimer = 0;
+					this.recordView(dist, this.endTimer, this.impressionIdentifier);
+				} else {
+					null;
+				}
+			}
+		});
 	}
 }
 
@@ -184,7 +197,10 @@ export class VersadexPaper extends Entity {
 				rotation: rotation,
 			})
 		);
-		this.addComponent(new PlaneShape());
+		const paperCollider = new PlaneShape();
+		paperCollider.withCollisions = false;
+
+		this.addComponent(paperCollider);
 	}
 }
 
@@ -222,44 +238,44 @@ export default class VersadexSmartItem implements IScript<Props> {
 			engine.addSystem(rotate);
 		}
 		const link = new VersadexLink(
-			new Vector3(-0.375, -0.5, 0.51),
+			new Vector3(-0.375, 0.05, 0.51),
 			Quaternion.Euler(0, 180, 180),
 			backboard
 		);
 		const link2 = new VersadexLink(
-			new Vector3(0.375, -0.5, -0.51),
+			new Vector3(0.375, 0.05, -0.51),
 			Quaternion.Euler(0, 0, 180),
 			backboard
 		);
 		const link3 = new VersadexLink(
-			new Vector3(0.51, -0.5, 0.375),
+			new Vector3(0.51, 0.05, 0.375),
 			Quaternion.Euler(0, 270, 180),
 			backboard
 		);
 		const link4 = new VersadexLink(
-			new Vector3(-0.51, -0.5, -0.375),
+			new Vector3(-0.51, 0.05, -0.375),
 			Quaternion.Euler(0, 90, 180),
 			backboard
 		);
 
 		// create the papers which displays the creative
 		const paper = new VersadexPaper(
-			new Vector3(0, 0, 0.501),
+			new Vector3(0, 0.5, 0.501),
 			Quaternion.Euler(0, 180, 180),
 			backboard
 		);
 		const paper2 = new VersadexPaper(
-			new Vector3(0, 0, -0.501),
+			new Vector3(0, 0.5, -0.501),
 			Quaternion.Euler(0, 0, 180),
 			backboard
 		);
 		const paper3 = new VersadexPaper(
-			new Vector3(+0.501, 0, 0),
+			new Vector3(+0.501, 0.5, 0),
 			Quaternion.Euler(0, 270, 180),
 			backboard
 		);
 		const paper4 = new VersadexPaper(
-			new Vector3(-0.501, 0, 0),
+			new Vector3(-0.501, 0.5, 0),
 			Quaternion.Euler(0, 90, 180),
 			backboard
 		);
@@ -267,7 +283,16 @@ export default class VersadexSmartItem implements IScript<Props> {
 
 		try {
 			executeTask(async () => {
-				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/");
+				let response = await fetch(
+					baseURL +
+						"/c/u/" +
+						props.id +
+						"/gc/?x=" +
+						1000 +
+						"&y=" +
+						1000 +
+						"&creative_type=img"
+				);
 				let json = await response.json();
 				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
