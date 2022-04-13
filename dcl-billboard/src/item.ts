@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.2"; // #VX!-version
+const identifier = "dcl-billboard-0.0.3"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 
@@ -25,7 +25,6 @@ export class VersadexImpression {
 	});
 	public physicsCast = PhysicsCast.instance;
 	public camera = Camera.instance;
-	private triggered: Boolean;
 	private billboardID: string;
 	private campaignID: string;
 	private client_identifier: string;
@@ -34,6 +33,8 @@ export class VersadexImpression {
 	private impressionIdentifier: string;
 
 	private userDistanceFlag: Boolean = false;
+	private raycastNotLookingAtSI: Boolean = true;
+	private raycastEntityValidation: Boolean = false;
 
 	private startTimer!: number;
 	private endTimer!: number;
@@ -45,7 +46,7 @@ export class VersadexImpression {
 		client_identifier: string,
 		impression_identifier: string
 	) {
-		(this.triggered = false), (this.billboardID = billboardID);
+		this.billboardID = billboardID;
 		this.campaignID = campaignID;
 		this.billboardTransform = billboardTransform;
 		this.client_identifier = client_identifier;
@@ -104,7 +105,7 @@ export class VersadexImpression {
 		let transform = this.billboardTransform;
 		let dist = this.distance(transform.position, this.camera.position);
 		let dir = this.direction(transform.position, this.camera.position);
-		let camera_readonly = this.physicsCast.getRayFromCamera(1).direction;
+		let camera_readonly = this.physicsCast.getRayFromCamera(100).direction;
 		let camera_direction = new Vector3(
 			camera_readonly.x,
 			camera_readonly.y,
@@ -116,25 +117,38 @@ export class VersadexImpression {
 			Vector3.Up()
 		);
 
-		if (!this.triggered) {
-			// if within ~16m or so then record as impressioned/viewed
-			if (dist < 300 && Math.abs(angle) < 0.81) {
-				if (!this.startTimer) {
-					this.startTimer = Date.now();
-				}
-				this.userDistanceFlag = true;
-			} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
-				this.endTimer = Date.now() - this.startTimer;
-				this.userDistanceFlag = false;
-				this.triggered = true;
-				this.startTimer = 0;
-				this.recordView(dist, this.endTimer, this.impressionIdentifier);
-			} else {
-				null;
+		const rayFromCamera = this.physicsCast.getRayFromCamera(50);
+
+		this.physicsCast.hitFirst(rayFromCamera, (raycastHitEntity) => {
+			if (
+				raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+				this.raycastNotLookingAtSI
+			) {
+				this.raycastNotLookingAtSI = false;
+				this.raycastEntityValidation = true;
 			}
-		} else if (this.triggered && this.userDistanceFlag == false) {
-			this.triggered = false;
-		}
+			if (!this.raycastNotLookingAtSI) {
+				if (
+					dist < 300 &&
+					Math.abs(angle) < 0.81 &&
+					this.raycastEntityValidation
+				) {
+					if (!this.startTimer) {
+						this.startTimer = Date.now();
+					}
+					this.userDistanceFlag = true;
+				} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
+					this.endTimer = Date.now() - this.startTimer;
+					this.userDistanceFlag = false;
+					this.raycastNotLookingAtSI = true;
+					this.raycastEntityValidation = false;
+					this.startTimer = 0;
+					this.recordView(dist, this.endTimer, this.impressionIdentifier);
+				} else {
+					null;
+				}
+			}
+		});
 	}
 }
 
@@ -143,7 +157,7 @@ export type Props = {
 };
 
 export default class VersadexSmartItem implements IScript<Props> {
-	init() { }
+	init() {}
 
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
@@ -172,10 +186,12 @@ export default class VersadexSmartItem implements IScript<Props> {
 		seeThrough.albedoColor = new Color4(0, 0, 0, 0);
 		versadex_link.addComponent(seeThrough);
 		versadex_link.addComponent(
-			new OnPointerDown(() => {
-				openExternalURL("https://versadex.xyz");
-			},
-				{ hoverText: "Advertise or monetise with Versadex" })
+			new OnPointerDown(
+				() => {
+					openExternalURL("https://versadex.xyz");
+				},
+				{ hoverText: "Advertise or monetise with Versadex" }
+			)
 		);
 
 		// create the paper which displays the creative
@@ -185,30 +201,44 @@ export default class VersadexSmartItem implements IScript<Props> {
 		// need to link scale to reflect the size of the object in the world, not necessarily the actual dimensions
 		paper.addComponent(
 			new Transform({
-				position: new Vector3(0, 0, 0.052),
-				scale: new Vector3(1.5, 0.9, 1),
-				rotation: Quaternion.Euler(0, 180, 180),
+				position: new Vector3(0, 0.5, -0.02),
+				scale: new Vector3(1.9, 0.9, 1),
+				rotation: Quaternion.Euler(0, 360, 180),
 			})
 		);
-		paper.addComponent(new PlaneShape());
-		const myMaterial = new Material();
 
+		const paperCollider = new PlaneShape();
+		paperCollider.withCollisions = false;
+
+		paper.addComponent(paperCollider);
+		const myMaterial = new Material();
 
 		try {
 			executeTask(async () => {
 				// let scale = host.getComponent(Transform).scale // LOOK INTO THE IMPACT BOXES FOR THE TRUE MODEL SIZE ETC
-				let response = await fetch(baseURL + "/c/u/" + props.id + "/gc/?x=" + 1000 + "&y=" + 1000 + "&creative_type=img");
+				let response = await fetch(
+					baseURL +
+						"/c/u/" +
+						props.id +
+						"/gc/?x=" +
+						2000 +
+						"&y=" +
+						1000 +
+						"&creative_type=img"
+				);
 				let json = await response.json();
 				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
 				paper.addComponent(myMaterial);
-				
+
 				// need to move the impression Identifier into the main item.ts file so that we end up attributing the impression to the click
 				paper.addComponent(
-					new OnPointerDown(() => {
-						openExternalURL(json.landing_url);
-					},
-						{ hoverText: "Visit website" })
+					new OnPointerDown(
+						() => {
+							openExternalURL(json.landing_url);
+						},
+						{ hoverText: "Visit website" }
+					)
 				);
 				// set campaign ID
 				const billboardTransform = host.getComponent(Transform);
