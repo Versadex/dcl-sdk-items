@@ -1,7 +1,6 @@
-const identifier = "dcl-cube-0.0.5"; // #VX!-version
+const identifier = "dcl-cube-0.0.6"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
-
 import {
 	getCurrentRealm,
 	getExplorerConfiguration,
@@ -74,11 +73,9 @@ export class VersadexImpression {
 			// get the user info to send as part of the impression
 			executeTask(async () => {
 				let view_data = {
-					campaign: this.campaignID,
 					viewer: (await this.userData).userId,
 					distance: dist.toFixed(1),
 					duration: endTimer.toFixed(),
-					client_identifier: this.client_identifier,
 					impression: impressionIdentifier,
 				};
 
@@ -150,7 +147,10 @@ export class VersadexImpression {
 			}
 		});
 	}
+	// chris@versadex.xyz
 }
+
+import { getUserData as getUserDataForImpression } from "@decentraland/Identity";
 
 export type Props = {
 	id: string;
@@ -221,6 +221,12 @@ export class RotateSystem implements ISystem {
 export default class VersadexSmartItem implements IScript<Props> {
 	init() {}
 
+	public userData = executeTask(async () => {
+		// user information & campaign holder
+		const data = await getUserDataForImpression();
+		return data!;
+	});
+
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
 		backboard.setParent(host);
@@ -281,19 +287,29 @@ export default class VersadexSmartItem implements IScript<Props> {
 		);
 		const myMaterial = new Material();
 
+		let backendCall =
+			baseURL +
+			"/c/u/" +
+			props.id +
+			"/gc/?x=" +
+			2000 +
+			"&y=" +
+			1000 +
+			"&creative_type=img" +
+			"&viewer=";
+
 		try {
 			executeTask(async () => {
 				let response = await fetch(
-					baseURL +
-						"/c/u/" +
-						props.id +
-						"/gc/?x=" +
-						1000 +
-						"&y=" +
-						1000 +
-						"&creative_type=img"
+					backendCall +
+						(
+							await this.userData
+						).userId +
+						"&client_identifier=" +
+						identifier
 				);
 				let json = await response.json();
+
 				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
 				for (let item of [paper, paper2, paper3, paper4]) {
