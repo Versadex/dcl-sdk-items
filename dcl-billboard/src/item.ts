@@ -165,11 +165,24 @@ export default class VersadexSmartItem implements IScript<Props> {
 		return data!;
 	});
 
-	private client_identifier: string;
-
 	spawn(host: Entity, props: Props, channel: IChannel) {
 		const backboard = new Entity();
 		backboard.setParent(host);
+
+		const backboardTransform = host.getComponent(Transform);
+
+		// Taken from blender file of the model
+		enum BackBoardDimensions {
+			dimensionX = 1000,
+			dimensionY = 1000,
+			dimensionZ = 20,
+		}
+
+		enum ChangedBackboardTransform {
+			dimensionX = BackBoardDimensions.dimensionX * backboardTransform.scale.x,
+			dimensionY = BackBoardDimensions.dimensionY * backboardTransform.scale.y,
+			dimensionZ = BackBoardDimensions.dimensionZ * backboardTransform.scale.z,
+		}
 
 		// create material for the back of the billboard
 		const backMaterial = new Material();
@@ -210,7 +223,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 		paper.addComponent(
 			new Transform({
 				position: new Vector3(0, 0.5, -0.02),
-				scale: new Vector3(1.9, 0.9, 1),
+				scale: new Vector3(0.9, 0.9, 1),
 				rotation: Quaternion.Euler(0, 360, 180),
 			})
 		);
@@ -221,14 +234,22 @@ export default class VersadexSmartItem implements IScript<Props> {
 		paper.addComponent(paperCollider);
 		const myMaterial = new Material();
 
+		let paperScales = paper.getComponent(Transform).scale;
+
+		enum PaperSize {
+			dimensionX = paperScales.x * ChangedBackboardTransform.dimensionX,
+			dimensionY = paperScales.y * ChangedBackboardTransform.dimensionY,
+			dimensionZ = paperScales.z * ChangedBackboardTransform.dimensionZ,
+		}
+
 		let backendCall =
 			baseURL +
 			"/c/u/" +
 			props.id +
 			"/gc/?x=" +
-			2000 +
+			PaperSize.dimensionX +
 			"&y=" +
-			1000 +
+			PaperSize.dimensionY +
 			"&creative_type=img" +
 			"&viewer=";
 

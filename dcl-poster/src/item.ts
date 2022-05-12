@@ -169,6 +169,21 @@ export default class VersadexSmartItem implements IScript<Props> {
 		const backboard = new Entity();
 		backboard.setParent(host);
 
+		const backboardTransform = host.getComponent(Transform);
+
+		// Taken from blender file of the model
+		enum BackBoardDimensions {
+			dimensionX = 2000,
+			dimensionY = 1000,
+			dimensionZ = 20,
+		}
+
+		let changedXTransform =
+			BackBoardDimensions.dimensionX * backboardTransform.scale.x;
+
+		let changedYTransform =
+			BackBoardDimensions.dimensionY * backboardTransform.scale.y;
+
 		// create material for the back of the item
 		const backMaterial = new Material();
 		backMaterial.albedoColor = Color3.Gray();
@@ -221,9 +236,9 @@ export default class VersadexSmartItem implements IScript<Props> {
 			"/c/u/" +
 			props.id +
 			"/gc/?x=" +
-			2000 +
+			changedXTransform +
 			"&y=" +
-			1000 +
+			changedYTransform +
 			"&creative_type=img" +
 			"&viewer=";
 
@@ -238,8 +253,11 @@ export default class VersadexSmartItem implements IScript<Props> {
 						identifier
 				);
 				let json = await response.json();
-				const myTexture = new Texture(json.creative_url, { wrap: 1 });
-				myMaterial.albedoTexture = myTexture;
+				const myVideoTexture = new VideoTexture(json.video_creative_url);
+				myVideoTexture.play();
+				myVideoTexture.loop = true;
+
+				myMaterial.albedoTexture = myVideoTexture;
 				paper.addComponent(myMaterial);
 				paper.addComponent(
 					new OnPointerDown(
