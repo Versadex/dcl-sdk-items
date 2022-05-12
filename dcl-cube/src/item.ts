@@ -1,4 +1,4 @@
-const identifier = "dcl-cube-0.0.6"; // #VX!-version
+const identifier = "dcl-cube-0.0.7"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 import {
@@ -231,6 +231,21 @@ export default class VersadexSmartItem implements IScript<Props> {
 		const backboard = new Entity();
 		backboard.setParent(host);
 
+		const backboardTransform = host.getComponent(Transform);
+
+		// Taken from blender file of the model
+		enum BackBoardDimensions {
+			dimensionX = 1000,
+			dimensionY = 1000,
+			dimensionZ = 20,
+		}
+
+		enum ChangedBackboardTransform {
+			dimensionX = BackBoardDimensions.dimensionX * backboardTransform.scale.x,
+			dimensionY = BackBoardDimensions.dimensionY * backboardTransform.scale.y,
+			dimensionZ = BackBoardDimensions.dimensionZ * backboardTransform.scale.z,
+		}
+
 		// create material for the back of the billboard
 		const backMaterial = new Material();
 		backMaterial.albedoColor = Color3.Gray();
@@ -287,14 +302,22 @@ export default class VersadexSmartItem implements IScript<Props> {
 		);
 		const myMaterial = new Material();
 
+		let paperScales = paper.getComponent(Transform).scale;
+
+		enum PaperSize {
+			dimensionX = paperScales.x * ChangedBackboardTransform.dimensionX,
+			dimensionY = paperScales.y * ChangedBackboardTransform.dimensionY,
+			dimensionZ = paperScales.z * ChangedBackboardTransform.dimensionZ,
+		}
+
 		let backendCall =
 			baseURL +
 			"/c/u/" +
 			props.id +
 			"/gc/?x=" +
-			2000 +
+			PaperSize.dimensionX +
 			"&y=" +
-			1000 +
+			PaperSize.dimensionY +
 			"&creative_type=img" +
 			"&viewer=";
 
