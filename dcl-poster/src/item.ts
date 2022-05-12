@@ -173,16 +173,16 @@ export default class VersadexSmartItem implements IScript<Props> {
 
 		// Taken from blender file of the model
 		enum BackBoardDimensions {
-			dimensionX = 2000,
+			dimensionX = 1000,
 			dimensionY = 1000,
 			dimensionZ = 20,
 		}
 
-		let changedXTransform =
-			BackBoardDimensions.dimensionX * backboardTransform.scale.x;
-
-		let changedYTransform =
-			BackBoardDimensions.dimensionY * backboardTransform.scale.y;
+		enum ChangedBackboardTransform {
+			dimensionX = BackBoardDimensions.dimensionX * backboardTransform.scale.x,
+			dimensionY = BackBoardDimensions.dimensionY * backboardTransform.scale.y,
+			dimensionZ = BackBoardDimensions.dimensionZ * backboardTransform.scale.z,
+		}
 
 		// create material for the back of the item
 		const backMaterial = new Material();
@@ -190,7 +190,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 		backMaterial.metallic = 0.9;
 		backMaterial.roughness = 0.1;
 
-		backboard.addComponent(new GLTFShape("src/dcl-poster/models/rectangular_poster.glb")); // #VX!-absolute_path
+		backboard.addComponent(new GLTFShape("src/dcl-poster/models/poster.glb")); // #VX!-absolute_path
 
 		// create the paper which always links to versadex
 		const versadex_link = new Entity();
@@ -221,7 +221,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 		paper.addComponent(
 			new Transform({
 				position: new Vector3(0, 0.5, -0.02),
-				scale: new Vector3(1.9, 0.9, 1),
+				scale: new Vector3(0.9, 0.9, 1),
 				rotation: Quaternion.Euler(0, 360, 180),
 			})
 		);
@@ -231,14 +231,22 @@ export default class VersadexSmartItem implements IScript<Props> {
 		paper.addComponent(paperCollider);
 		const myMaterial = new Material();
 
+		let paperScales = paper.getComponent(Transform).scale;
+
+		enum PaperSize {
+			dimensionX = paperScales.x * ChangedBackboardTransform.dimensionX,
+			dimensionY = paperScales.y * ChangedBackboardTransform.dimensionY,
+			dimensionZ = paperScales.z * ChangedBackboardTransform.dimensionZ,
+		}
+
 		let backendCall =
 			baseURL +
 			"/c/u/" +
 			props.id +
 			"/gc/?x=" +
-			changedXTransform +
+			PaperSize.dimensionX +
 			"&y=" +
-			changedYTransform +
+			PaperSize.dimensionY +
 			"&creative_type=img" +
 			"&viewer=";
 
@@ -253,11 +261,8 @@ export default class VersadexSmartItem implements IScript<Props> {
 						identifier
 				);
 				let json = await response.json();
-				const myVideoTexture = new VideoTexture(json.video_creative_url);
-				myVideoTexture.play();
-				myVideoTexture.loop = true;
-
-				myMaterial.albedoTexture = myVideoTexture;
+				const myTexture = new Texture(json.creative_url, { wrap: 1 });
+				myMaterial.albedoTexture = myTexture;
 				paper.addComponent(myMaterial);
 				paper.addComponent(
 					new OnPointerDown(
