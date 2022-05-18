@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.5"; // #VX!-version
+const identifier = "dcl-billboard-0.0.6"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 import {
@@ -126,7 +126,7 @@ export class VersadexImpression {
 			}
 			if (!this.raycastNotLookingAtSI) {
 				if (
-					dist < 300 &&
+					dist < 800 &&
 					Math.abs(angle) < 0.81 &&
 					this.raycastEntityValidation
 				) {
@@ -272,7 +272,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 						() => {
 							openExternalURL(json.landing_url);
 						},
-						{ hoverText: "Visit website" }
+						{ hoverText: "Visit website", distance: 800 }
 					)
 				);
 				// set campaign ID
