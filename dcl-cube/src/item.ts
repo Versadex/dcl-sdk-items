@@ -1,4 +1,4 @@
-const identifier = "dcl-cube-0.0.8"; // #VX!-version
+const identifier = "dcl-cube-0.0.9"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 import {
@@ -113,20 +113,203 @@ export class VersadexImpression {
 			camera_direction,
 			Vector3.Up()
 		);
+		let cameraLookDirection = Vector3.Forward().rotate(this.camera.rotation);
 
-		const rayFromCamera = this.physicsCast.getRayFromCamera(50);
+		//Upper rays
+		let modDirection1 = new Vector3(0, 0.15, 1).rotate(this.camera.rotation);
+		let modDirection2 = new Vector3(0.1, 0.1, 1).rotate(this.camera.rotation);
+		let modDirection3 = new Vector3(-0.1, 0.1, 1).rotate(this.camera.rotation);
 
-		this.physicsCast.hitFirst(rayFromCamera, (raycastHitEntity) => {
-			if (
-				raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
-				this.raycastNotLookingAtSI
-			) {
-				this.raycastNotLookingAtSI = false;
-				this.raycastEntityValidation = true;
-			}
+		//Lower rays
+		let modDirection4 = new Vector3(-0.1, -0.1, 1).rotate(this.camera.rotation);
+		let modDirection5 = new Vector3(0.1, -0.1, 1).rotate(this.camera.rotation);
+		let modDirection6 = new Vector3(0, -0.15, 1).rotate(this.camera.rotation);
+
+		//Mid rays
+		let modDirection7 = new Vector3(-0.15, 0, 1).rotate(this.camera.rotation);
+		let modDirection8 = new Vector3(0.15, 0, 1).rotate(this.camera.rotation);
+
+		let rayCenter: Ray = {
+			origin: this.camera.position,
+			direction: cameraLookDirection,
+			distance: 2000,
+		};
+
+		let rayMod1: Ray = {
+			origin: this.camera.position,
+			direction: modDirection1,
+			distance: 2000,
+		};
+		let rayMod2: Ray = {
+			origin: this.camera.position,
+			direction: modDirection2,
+			distance: 2000,
+		};
+		let rayMod3: Ray = {
+			origin: this.camera.position,
+			direction: modDirection3,
+			distance: 2000,
+		};
+
+		let rayMod4: Ray = {
+			origin: this.camera.position,
+			direction: modDirection4,
+			distance: 2000,
+		};
+
+		let rayMod5: Ray = {
+			origin: this.camera.position,
+			direction: modDirection5,
+			distance: 2000,
+		};
+
+		let rayMod6: Ray = {
+			origin: this.camera.position,
+			direction: modDirection6,
+			distance: 2000,
+		};
+
+		let rayMod7: Ray = {
+			origin: this.camera.position,
+			direction: modDirection7,
+			distance: 2000,
+		};
+
+		let rayMod8: Ray = {
+			origin: this.camera.position,
+			direction: modDirection8,
+			distance: 2000,
+		};
+
+		this.physicsCast.hitFirst(
+			rayCenter,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			0
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod1,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			1
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod2,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			2
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod3,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			3
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod4,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			4
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod5,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			5
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod6,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			6
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod7,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			7
+		);
+
+		this.physicsCast.hitFirst(
+			rayMod8,
+			(raycastHitEntity) => {
+				if (
+					raycastHitEntity.entity.meshName == "versadexSmartItem_collider" &&
+					this.raycastNotLookingAtSI
+				) {
+					this.raycastNotLookingAtSI = false;
+					this.raycastEntityValidation = true;
+				}
+			},
+			8
+		);
+
 			if (!this.raycastNotLookingAtSI) {
 				if (
-					dist < 800 &&
+					dist < 2000 &&
 					Math.abs(angle) < 0.81 &&
 					this.raycastEntityValidation
 				) {
@@ -145,7 +328,7 @@ export class VersadexImpression {
 					null;
 				}
 			}
-		});
+		};
 	}
 	// chris@versadex.xyz
 }
