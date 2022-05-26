@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.7"; // #VX!-version
+const identifier = "dcl-billboard-0.0.8"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 import {
@@ -373,9 +373,9 @@ export default class VersadexSmartItem implements IScript<Props> {
 		backMaterial.metallic = 0.9;
 		backMaterial.roughness = 0.1;
 
-		backboard.addComponent(new GLTFShape("src/dcl-billboard/models/billboard.glb")); // #VX!-absolute_path
+		backboard.addComponent(new GLTFShape("src/dcl-billboard/models/billboard_with_collider.glb")); // #VX!-absolute_path
 
-		// create the paper which always links to versadex
+		// create the logo's paper which always links to versadex
 		const versadex_link = new Entity();
 		versadex_link.setParent(backboard);
 		versadex_link.addComponent(
@@ -402,7 +402,6 @@ export default class VersadexSmartItem implements IScript<Props> {
 		const paper = new Entity();
 		paper.setParent(backboard);
 
-		// need to link scale to reflect the size of the object in the world, not necessarily the actual dimensions
 		paper.addComponent(
 			new Transform({
 				position: new Vector3(0, 0.5, -0.02),
@@ -424,6 +423,12 @@ export default class VersadexSmartItem implements IScript<Props> {
 			dimensionY = paperScales.y * ChangedBackboardTransform.dimensionY,
 			dimensionZ = paperScales.z * ChangedBackboardTransform.dimensionZ,
 		}
+
+		//convert to first ratio here
+
+		//The problem: After the paper reaches a certain size the backend throws a default ad
+		// It should throw an ad relative to the ratio of the dimensions
+		// The solution: Convert the dimension to its smallest ratio then send to the backend
 
 		let backendCall =
 			baseURL +
