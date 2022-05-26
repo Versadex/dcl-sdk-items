@@ -435,7 +435,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 		backMaterial.metallic = 0.9;
 		backMaterial.roughness = 0.1;
 
-		backboard.addComponent(new GLTFShape("src/dcl-cube/models/cube_billboard.glb")); // #VX!-absolute_path
+		backboard.addComponent(new GLTFShape("src/dcl-cube/models/cube_with_collider.glb")); // #VX!-absolute_path
 
 		if (props.auto_rotate) {
 			const rotate = new RotateSystem(host);
