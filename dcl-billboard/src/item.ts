@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.8"; // #VX!-version
+const identifier = "dcl-billboard-0.0.9"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 import {
@@ -307,31 +307,30 @@ export class VersadexImpression {
 			8
 		);
 
-			if (!this.raycastNotLookingAtSI) {
-				if (
-					dist < 2000 &&
-					Math.abs(angle) < 0.81 &&
-					this.raycastEntityValidation
-				) {
-					if (!this.startTimer) {
-						this.startTimer = Date.now();
-					}
-					this.userDistanceFlag = true;
-				} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
-					this.endTimer = Date.now() - this.startTimer;
-					this.userDistanceFlag = false;
-					this.raycastNotLookingAtSI = true;
-					this.raycastEntityValidation = false;
-					this.startTimer = 0;
-					this.recordView(dist, this.endTimer, this.impressionIdentifier);
-				} else {
-					null;
+		if (!this.raycastNotLookingAtSI) {
+			if (
+				dist < 2000 &&
+				Math.abs(angle) < 0.81 &&
+				this.raycastEntityValidation
+			) {
+				if (!this.startTimer) {
+					this.startTimer = Date.now();
 				}
+				this.userDistanceFlag = true;
+			} else if (this.userDistanceFlag && Math.abs(angle) > 0.8) {
+				this.endTimer = Date.now() - this.startTimer;
+				this.userDistanceFlag = false;
+				this.raycastNotLookingAtSI = true;
+				this.raycastEntityValidation = false;
+				this.startTimer = 0;
+				this.recordView(dist, this.endTimer, this.impressionIdentifier);
+			} else {
+				null;
 			}
-		};
+		}
 	}
-	// chris@versadex.xyz
 }
+// chris@versadex.xyz
 
 import { getUserData as getUserDataForImpression } from "@decentraland/Identity";
 
@@ -419,9 +418,15 @@ export default class VersadexSmartItem implements IScript<Props> {
 		let paperScales = paper.getComponent(Transform).scale;
 
 		enum PaperSize {
-			dimensionX = paperScales.x * ChangedBackboardTransform.dimensionX,
-			dimensionY = paperScales.y * ChangedBackboardTransform.dimensionY,
-			dimensionZ = paperScales.z * ChangedBackboardTransform.dimensionZ,
+			dimensionX = Math.floor(
+				paperScales.x * ChangedBackboardTransform.dimensionX
+			),
+			dimensionY = Math.floor(
+				paperScales.y * ChangedBackboardTransform.dimensionY
+			),
+			dimensionZ = Math.floor(
+				paperScales.z * ChangedBackboardTransform.dimensionZ
+			),
 		}
 
 		//convert to first ratio here
@@ -452,6 +457,7 @@ export default class VersadexSmartItem implements IScript<Props> {
 						identifier
 				);
 				let json = await response.json();
+
 				const myTexture = new Texture(json.creative_url, { wrap: 1 });
 				myMaterial.albedoTexture = myTexture;
 				paper.addComponent(myMaterial);
