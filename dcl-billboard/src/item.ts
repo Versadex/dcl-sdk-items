@@ -1,4 +1,4 @@
-const identifier = "dcl-billboard-0.0.7"; // #VX!-version
+const identifier = "dcl-billboard-0.0.8"; // #VX!-version
 const baseURL = "https://api.versadex.xyz";
 import { getUserData } from "@decentraland/Identity";
 import {
