@@ -100,7 +100,9 @@ export class VersadexImpression {
 
 	update() {
 		let transform = this.billboardTransform;
-		let dist = this.distance(transform.position, this.camera.position);
+		let dist = Math.floor(
+			this.distance(transform.position, this.camera.position)
+		);
 		let dir = this.direction(transform.position, this.camera.position);
 		let camera_readonly = this.physicsCast.getRayFromCamera(100).direction;
 		let camera_direction = new Vector3(
